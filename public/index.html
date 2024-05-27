@@ -14,112 +14,56 @@
 </head>
 <body>
 
-<!--  使用 vue3 建立 app， data 為 日期 名稱 收盤價(date,name,closing_price)
-，用表單輸入，method 為 fetch async await 用 post /api/insert 插入資料 -->
-<!--  產生鋅 銅 鎳 三顆按鈕 依 鋅 銅 鎳 分類抓取與篩選資料使用 fetch async await  http://localhost:3000/api/future 的 JSON ，JSON
-包括 (date,name,closing_price) 等欄位，用 Table 顯示，使用 vue3，使用 vue3 的 v-for 顯示 JSON 的資料-->
+<div class="item"><h1 class="font">期貨資料</h1></div>
 
 <div id="app" class="item">
-    <form @submit.prevent="insert" >
-        <input type="date" v-model="date" placeholder="請輸入日期" class="button"><br>
-        <input type="text" v-model="name" placeholder="請輸入鋅、銅、鎳" class="button"><br>
-        <input type="text" v-model="closing_price" placeholder="請輸入收盤價如1,000.00" class="button"><br>
-        <button type="submit" class="button">輸入</button>
-    </form>
+    <div class="form-container">
+        <form @submit.prevent="insert">
+            <input type="date" v-model="date" placeholder="請輸入日期" class="button"><br>
+            <input type="text" v-model="name" placeholder="請輸入鋅、銅、鎳" class="button"><br>
+            <input type="text" v-model="closing_price" placeholder="請輸入收盤價如1,000.00" class="button"><br>
+            <button type="submit" class="button">輸入</button>
+        </form>
+    </div>
+    <div class="form-container">
+        <h4 class="font">請選取查詢起訖日期</h4>
+        <input type="date" v-model="startDate" placeholder="開始日期" class="button">
+        <input type="date" v-model="endDate" placeholder="結束日期" class="button">
+        <button @click="fetchData('鋅')" class="button">鋅</button>
+        <button @click="fetchData('銅')" class="button">銅</button>
+        <button @click="fetchData('鎳')" class="button">鎳</button>
+    </div>
 
-    <p></p>
-    <button @click="fetchData ('鋅')" class="button">鋅</button>
-    <button @click="fetchData('銅')" class="button">銅</button>
-    <button @click="fetchData('鎳')" class="button">鎳</button>
-    <table>
-        <thead>
-        <tr>
-            <th>日期</th>
-            <th>名稱</th>
-            <th>收盤價</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="item in items" :key="item.id">
-            <td>{{ item.date }}</td>
-            <td>{{ item.name }}</td>
-            <td>{{ item.closing_price }}</td>
-        </tr>
-        </tbody>
-    </table>
-
+    <div class="table-container">
+        <table>
+            <thead>
+            <tr>
+                <th>日期</th>
+                <th>名稱</th>
+                <th>收盤價</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="item in items" :key="item.id">
+                <td>{{ item.date }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.closing_price }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="font">
+        <h4 v-if="highPrice" style="color: red;">最高價: 日期: {{ highPrice.date }}, 名稱: {{ highPrice.name }}, 收盤價:
+            {{ highPrice.closing_price }}</h4>
+        <h4 v-if="lowPrice" style="color: green;">最低價: 日期: {{ lowPrice.date }}, 名稱: {{ lowPrice.name }}, 收盤價:
+            {{ lowPrice.closing_price }}</h4>
+        <h4 v-if="!highPrice && !lowPrice"></h4>
+    </div>
 </div>
+
 <canvas id="myChart"></canvas>
-<script>
 
-    const app = Vue.createApp({
-        data() {
-            return {
-                date: '',
-                name: '',
-                closing_price: '',
-                items: [],
-                chart: null
-            }
-        },
-        methods: {
-            async insert() {
-                const res = await fetch('/api/insert', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        date: this.date,
-                        name: this.name,
-                        closing_price: this.closing_price
-                    })
-                });
-                const data = await res.json();
-                console.log(data);
-            },
-
-            async fetchData(name) {
-                const res = await fetch(`http://localhost:3000/api/future?name=${name}`);
-                const data = await res.json();
-                this.items = data;
-                this.updateChart();
-            },
-
-            updateChart() {
-                const ctx = document.getElementById('myChart').getContext('2d');
-                if (this.chart) {
-                    this.chart.destroy();
-                }
-                this.chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: this.items.map(item => item.date),
-                        datasets: [{
-                            label: '收盤價',
-                            data: this.items.map(item => parseFloat(item.closing_price.replace(/,/g, ''))),
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1,
-                            fill: false
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            x: {
-                                beginAtZero: true
-                            },
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            }
-        }
-    });
-
-    app.mount('#app');
-</script>
+<script src="javascripts/future.js"></script>
 
 </body>
 </html>
