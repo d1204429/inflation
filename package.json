@@ -1,0 +1,17 @@
+{
+  "name": "inflation",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "echarts": "^4.9.0",
+    "express": "^4.19.2",
+    "morgan": "~1.9.1",
+    "sqlite3": "^5.0.2",
+    "v-charts": "^1.19.0"
+  }
+}
